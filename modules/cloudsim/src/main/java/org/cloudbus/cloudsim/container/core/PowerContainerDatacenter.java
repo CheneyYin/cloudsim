@@ -121,6 +121,7 @@ public class PowerContainerDatacenter extends ContainerDatacenter {
         // if some time passed since last processing
         if (currentTime > getLastProcessTime()) {
             Log.print(currentTime + " ");
+            System.out.println(currentTime + " ");
 
             double minTime = updateCloudetProcessingWithoutSchedulingFutureEventsForce();
 
@@ -164,13 +165,7 @@ public class PowerContainerDatacenter extends ContainerDatacenter {
 
                 }
                 Log.printlnConcat(CloudSim.clock(), ": The number of Migrations is:  ", getVmMigrationCount() - previousMigrationCount);
-//                String[] msg={Double.toString (CloudSim.clock()), Integer.toString (getVmMigrationCount() - previousMigrationCount)  } ;                   // <--declared statement
-//                try {
-//                    getVmMigrationWriter().writeTofile(msg);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//                Log.printConcatLine(CloudSim.clock(),": The total number of Migrations is:  ",getVmMigrationCount());
+                System.out.println(CloudSim.clock() + ": The number of Migrations is:  " + (getVmMigrationCount() - previousMigrationCount));
             }
 
             // schedules an event to the next time

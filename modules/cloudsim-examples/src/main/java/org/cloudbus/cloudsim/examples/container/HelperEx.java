@@ -130,7 +130,7 @@ public class HelperEx {
 
 //            hostList.add(new PowerHost(i, new RamProvisionerSimple(ConstantsExamples.HOST_RAM[hostType]),
 //                    new BwProvisionerSimple(1000000L), 1000000L, peList, new VmSchedulerTimeSharedOverSubscription(peList), ConstantsExamples.HOST_POWER[hostType]));
-            hostList.add(new PowerHost(IDs.pollId(Host.class), new RamProvisionerSimple(ConstantsExamples.HOST_RAM[hostType]),
+            hostList.add(new ContainerHostDynamicWorkload(IDs.pollId(Host.class), new RamProvisionerSimple(ConstantsExamples.HOST_RAM[hostType]),
                     new BwProvisionerSimple(1000000L), 1000000L, peList, new VmSchedulerTimeSharedOverSubscription(peList), ConstantsExamples.HOST_POWER[hostType]));
         }
 
@@ -1017,8 +1017,39 @@ public class HelperEx {
         data.append(String.format("%d", broker.getContainersCreated())).append(delimeter);
         data.append(String.format("%d", broker.getNumberOfCreatedVMs())).append(delimeter);
 
-//        data.append(String.format("%.10f", sla) + delimeter);
-//        data.append(String.format("%.10f", slaDegradationDueToMigration) + delimeter);
+
+        System.out.println(parseExperimentName(experimentName));
+        System.out.println(String.format("numberOfHosts:%d", numberOfHosts));
+        System.out.println(String.format("numberOfVms:%d", numberOfVms));
+        System.out.println(String.format("totalSimulationTime:%.2f", totalSimulationTime));
+        System.out.println(String.format("slaOverall:%.10f", slaOverall));
+        System.out.println(String.format("slaAverage:%.10f", slaAverage));
+        System.out.println(String.format("slaTimePerActiveHost:%.10f", slaTimePerActiveHost));
+        System.out.println(String.format("meanTimeBeforeHostShutdown:%.10f", meanTimeBeforeHostShutdown));
+        System.out.println(String.format("stDevTimeBeforeHostShutdown:%.10f", stDevTimeBeforeHostShutdown));
+        System.out.println(String.format("medTimeBeforeHostShutdown:%.10f", medTimeBeforeHostShutdown));
+//        System.out.println(String.format("meanTimeBeforeContainerMigration:%.10f", meanTimeBeforeContainerMigration));
+//        System.out.println(String.format("stDevTimeBeforeContainerMigration:%.10f", stDevTimeBeforeContainerMigration));
+//        System.out.println(String.format("medTimeBeforeContainerMigration:%.10f", medTimeBeforeContainerMigration));
+        System.out.println(String.format("meanActiveVm:%.10f", meanActiveVm));
+        System.out.println(String.format("stDevActiveVm:%.10f", stDevActiveVm));
+        System.out.println(String.format("medActiveVm:%.10f", medActiveVm));
+        System.out.println(String.format("meanActiveHosts:%.10f", meanActiveHosts));
+        System.out.println(String.format("stDevActiveHosts:%.10f", stDevActiveHosts));
+        System.out.println(String.format("medActiveHosts:%.10f", medActiveHosts));
+        System.out.println(String.format("meanNumberOfContainerMigrations:%.10f", meanNumberOfContainerMigrations));
+        System.out.println(String.format("stDevNumberOfContainerMigrations:%.10f", stDevNumberOfContainerMigrations));
+        System.out.println(String.format("medNumberOfContainerMigrations:%.10f", medNumberOfContainerMigrations));
+        System.out.println(String.format("meanDatacenterEnergy:%.10f", meanDatacenterEnergy));
+        System.out.println(String.format("stDevDatacenterEnergy:%.10f", stDevDatacenterEnergy));
+        System.out.println(String.format("medDatacenterEnergy:%.10f", medDatacenterEnergy));
+        System.out.println(String.format("totalContainerMigration:%d", totalContainerMigration));
+        System.out.println(String.format("totalVmMigration:%d", totalVmMigration));
+        System.out.println(String.format("totalVmCreated:%d", totalVmCreated));
+        System.out.println(String.format("numberOfOverUtilization:%d", numberOfOverUtilization));
+        System.out.println(String.format("energy:%.5f", energy));
+        System.out.println(String.format("broker.getContainersCreated():%d", broker.getContainersCreated()));
+        System.out.println(String.format("broker.getNumberOfCreatedVMs():%d", broker.getNumberOfCreatedVMs()));
 
         int index = experimentName.lastIndexOf("_");
 
@@ -1089,10 +1120,6 @@ public class HelperEx {
 
         writeDataColumn(timeBeforeHostShutdown, beforShutDown+"/"+ experimentName + "_time_before_host_shutdown.csv");
         writeDataColumn(timeBeforeContainerMigration, beforeMigrate+"/"+experimentName+ "_time_before_vm_migration.csv");
-
-
-
-
     }
 
 

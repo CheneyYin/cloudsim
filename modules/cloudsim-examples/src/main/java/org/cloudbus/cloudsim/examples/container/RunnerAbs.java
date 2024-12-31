@@ -2,6 +2,7 @@ package org.cloudbus.cloudsim.examples.container;
 
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.container.core.*;
+import org.cloudbus.cloudsim.container.resourceAllocatorMigrationEnabled.PowerContainerVmAllocationPolicyMigrationAbstractContainerAdded;
 import org.cloudbus.cloudsim.container.resourceAllocatorMigrationEnabled.PowerContainerVmAllocationPolicyMigrationAbstractHostSelection;
 import org.cloudbus.cloudsim.container.resourceAllocatorMigrationEnabled.PowerContainerVmAllocationPolicyMigrationStaticThresholdMC;
 import org.cloudbus.cloudsim.container.resourceAllocatorMigrationEnabled.PowerContainerVmAllocationPolicyMigrationStaticThresholdMCUnderUtilized;
@@ -170,7 +171,10 @@ public abstract class RunnerAbs {
                     getExperimentName(), ConstantsExamples.SCHEDULING_INTERVAL, getLogAddress(),
                     ConstantsExamples.VM_STARTTUP_DELAY, ConstantsExamples.CONTAINER_STARTTUP_DELAY);
 //            PowerContainerDatacenter e = (PowerContainerDatacenter) HelperEx.createDatacenter("Datacenter", PowerContainerDatacenter.class, hostList, vmAllocationPolicy, containerAllocationPolicy);
-            // not needed: vmAllocationPolicy.setDatacenter(e);
+//            vmAllocationPolicy.setDatacenter(e);
+            if (vmAllocationPolicy instanceof PowerContainerVmAllocationPolicyMigrationAbstractContainerAdded) {
+                ((PowerContainerVmAllocationPolicyMigrationAbstractContainerAdded) vmAllocationPolicy).setDatacenter(e);
+            }
             e.setDisableVmMigrations(false);
             broker.submitGuestList(vmList);
             broker.submitContainerList(containerList);

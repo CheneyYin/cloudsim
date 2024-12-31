@@ -12,6 +12,8 @@ import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.GuestEntity;
 import org.cloudbus.cloudsim.core.VirtualEntity;
 import org.cloudbus.cloudsim.lists.PeList;
+import org.cloudbus.cloudsim.power.PowerHost;
+import org.cloudbus.cloudsim.power.models.PowerModel;
 import org.cloudbus.cloudsim.provisioners.BwProvisioner;
 import org.cloudbus.cloudsim.provisioners.RamProvisioner;
 
@@ -23,7 +25,7 @@ import java.util.List;
  * Created by sareh on 14/07/15.
  * Modified by Remo Andreoli (Feb 2024)
  */
-public class ContainerHostDynamicWorkload extends Host {
+public class ContainerHostDynamicWorkload extends PowerHost {
 
 
         /** The utilization mips. */
@@ -51,8 +53,9 @@ public class ContainerHostDynamicWorkload extends Host {
                 BwProvisioner bwProvisioner,
                 long storage,
                 List<? extends Pe> peList,
-                VmScheduler vmScheduler) {
-            super(id, ramProvisioner, bwProvisioner, storage, peList, vmScheduler);
+                VmScheduler vmScheduler,
+                PowerModel powerModel) {
+            super(id, ramProvisioner, bwProvisioner, storage, peList, vmScheduler, powerModel);
             setUtilizationMips(0);
             setPreviousUtilizationMips(0);
         }
@@ -83,10 +86,11 @@ public class ContainerHostDynamicWorkload extends Host {
                 double totalAllocatedMips = getGuestScheduler().getTotalAllocatedMipsForGuest(containerVm);
 
                 if (!Log.isDisabled()) {
+                    String formatLine = "%.2f: [Host #" + getId() + "] Total allocated MIPS for VM #" + containerVm.getId() +
+                            " (Host #" + containerVm.getHost().getId() +
+                            ") is %.2f, was requested %.2f out of total %.2f (%.2f%%)";
                     Log.formatLine(
-                            "%.2f: [Host #", getId(), "] Total allocated MIPS for VM #", containerVm.getId(),
-                                    " (Host #", containerVm.getHost().getId(),
-                                    ") is %.2f, was requested %.2f out of total %.2f (%.2f%%)",
+                            formatLine,
                             CloudSim.clock(),
                             totalAllocatedMips,
                             totalRequestedMips,
@@ -96,12 +100,12 @@ public class ContainerHostDynamicWorkload extends Host {
                     List<Pe> pes = getGuestScheduler().getPesAllocatedForGuest(containerVm);
                     StringBuilder pesString = new StringBuilder();
                     for (Pe pe : pes) {
-                        pesString.append(String.format(" PE #", pe.getId(), ": %.2f.", pe.getPeProvisioner()
+                        pesString.append(String.format(" PE #" + pe.getId() + ": %.2f.", pe.getPeProvisioner()
                                 .getTotalAllocatedMipsForGuest(containerVm)));
                     }
                     Log.formatLine(
-                            "%.2f: [Host #", getId(), "] MIPS for VM #", containerVm.getId(), " by PEs (",
-                                    getNumberOfPes(), " * ", getGuestScheduler().getPeCapacity(), ").",
+                            "%.2f: [Host #" + getId() + "] MIPS for VM #" + containerVm.getId() + " by PEs (" +
+                                    getNumberOfPes() + " * " + getGuestScheduler().getPeCapacity() + ")." +
                                     pesString,
                             CloudSim.clock());
                 }
@@ -142,34 +146,35 @@ public class ContainerHostDynamicWorkload extends Host {
             return smallerTime;
         }
 
-        /**
-         * Gets the completed vms.
-         *
-         * @return the completed vms
-         */
-        public List<VirtualEntity> getCompletedVms() {
-            List<VirtualEntity> vmsToRemove = new ArrayList<>();
-            List<VirtualEntity> containerVms = getGuestList();
+    /**
+     * Gets the completed vms.
+     *
+     * @return the completed vms
+     */
 
-            for (VirtualEntity containerVm : containerVms) {
-                if (containerVm.isInMigration()) {
-                    continue;
-                }
-//                if the  vm is in waiting state then dont kill it just waite !!!!!!!!!
-                 if(containerVm.isInWaiting()){
-                     continue;
-                 }
-//              if (containerVm.getCurrentRequestedTotalMips() == 0) {
-//                    vmsToRemove.add(containerVm);
-//                }
-                if(containerVm.getNumberOfGuests()==0 ){
-                    vmsToRemove.add(containerVm);
-                }
+    @Override
+    public List<GuestEntity> getCompletedVms() {
+        List<GuestEntity> vmsToRemove = new ArrayList<>();
+        List<VirtualEntity> containerVms = getGuestList();
+        for (VirtualEntity vm : containerVms) {
+            if (vm.isInMigration()) {
+                continue;
             }
-            return vmsToRemove;
+            if (vm.isInWaiting()) {
+                continue;
+            }
+            if (vm.getCurrentRequestedTotalMips() == 0) {
+                vmsToRemove.add(vm);
+            }
+            if (vm.getNumberOfGuests() == 0) {
+                vmsToRemove.add(vm);
+            }
+            if (vm.getCurrentRequestedTotalMips() == 0) {
+                vmsToRemove.add(vm);
+            }
         }
-
-
+        return vmsToRemove;
+    }
 
     /**
      * Gets the completed vms.
